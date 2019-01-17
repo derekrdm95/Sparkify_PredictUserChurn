@@ -43,7 +43,7 @@ For **preprosessing** step:
 - For all the numeric feature, I combine them altogether by user_id and than normalize all of them
 
 ### Metrics For Evaluation and Justification
-Here we use **F1 score** to evaluate and select the model. The reason is that overall metrics such as accuracy is not very helpful in the case of user churn. Churn rate usually not very high acroos the whole population. Here we would like to focus more on the precision (those who were predicted churn would truly churn in our case) and recall in our scenario. Therefore, f1 score is a better metrics reflecting what we care about.
+Here we use **F1 score** to evaluate and select the model. First, this is a relatively small dataset, we have very few users that actually churn from our service. Besides, the reason is that overall metrics such as accuracy is not very helpful in the case of user churn. Churn rate usually not very high acroos the whole population. Here we would like to focus more on the precision (those who were predicted churn would truly churn in our case) and recall in our scenario. Therefore, f1 score is a better metrics reflecting what we care about.
 
 ### Conclusion
 Among the three models we've been trained:
@@ -59,7 +59,10 @@ Score on the final validation set
 - Accuracy: 0.7816
 - F1 Score: 0.7416
 
-### Improvement
+**Benchmark of our base model**
+The most basic estimates is to predict all the user to not churn in this case, our accuracy would be 99/448 = 0.221
+Therefore, our final model greatly improved the prediction.
 
+### Improvement
 - Feature Engineering: There are more interesting features that could be included in the models such as **whether they are free/paid users; whether they swtiched their services; what is their frequency and interval of using our product.** 
 - Tunning Hyperparameter: Training GBT on a fairly large dataset could take quite a long time. Given more time, more and wider range of hyperparameters could be tested on for the best model such as **lossType, maxBins, minInfoGain**.
