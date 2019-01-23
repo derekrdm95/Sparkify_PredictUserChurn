@@ -26,6 +26,9 @@ Please refer to my notebook file for detailed analysis, the whole analysis is di
 - Modeling (Here we used three different models **logistic regression, SVM and gradient boosting tree**)
 - Evaluation (Pick up the best model and report result on **validation set**)
 
+### Metrics For Evaluation and Justification
+Here we use **F1 score** to evaluate and select the model. First, this is a relatively small dataset, we have very few users that actually churn from our service. Besides, the reason is that overall metrics such as accuracy is not very helpful in the case of user churn. Churn rate usually not very high acroos the whole population. Here we would like to focus more on the precision (those who were predicted churn would truly churn in our case) and recall in our scenario. Therefore, f1 score is a better metrics reflecting what we care about.
+
 ### Feature Engineering and Preprocessing Step
 After the preliminary exploratory analysis, **I started to create some of the features, aggregating all the log activities to userID level using pyspark**. Some features include:
 
@@ -42,8 +45,25 @@ For **preprosessing** step:
 - I first deleted all the log activities with missing user_id.
 - For all the numeric feature, I combine them altogether by user_id and than normalize all of them
 
-### Metrics For Evaluation and Justification
-Here we use **F1 score** to evaluate and select the model. First, this is a relatively small dataset, we have very few users that actually churn from our service. Besides, the reason is that overall metrics such as accuracy is not very helpful in the case of user churn. Churn rate usually not very high acroos the whole population. Here we would like to focus more on the precision (those who were predicted churn would truly churn in our case) and recall in our scenario. Therefore, f1 score is a better metrics reflecting what we care about.
+### Implementation
+**Step1:** Split the dataset into 80% training set, 20% valdiation set
+**Step2:** Train the training set on three different models: logistic regression, svm and gradient boosting tree
+***Initial Parameters:***
+- logit = LogisticRegression(maxIter=10,regParam=0.0)
+- gbt = GBTClassifier(maxDepth=5,maxIter=10,seed=42)
+- svm = LinearSVC(maxIter=10, regParam=0.01)
+**Step3:** Evaluate the three models use the 3-fold cross validation
+***Respective f1 score:***
+- logistic regression (f1 score 0.7146)
+- gradient boosted tree (best f1 score 0.7160 )
+- supported vector machine (best f1 score 0.6780)
+
+### Refinement
+Here I tried multiple grid-searches, tuning different hyperparamater:
+- logistic regression (logit.regParam, [0.0, 0.05, 0.1])
+- gradient boosted tree (gbt.maxDepth, [5, 10])
+- supported vector machine (svm.regParam, [0.01, 0.05, 0.5])
+But several hyperparameters have been tried, it seems that still the original one is the best.
 
 ### Conclusion
 Among the three models we've been trained:
@@ -66,3 +86,10 @@ Therefore, our final model greatly improved the prediction.
 ### Improvement
 - Feature Engineering: There are more interesting features that could be included in the models such as **whether they are free/paid users; whether they swtiched their services; what is their frequency and interval of using our product.** 
 - Tunning Hyperparameter: Training GBT on a fairly large dataset could take quite a long time. Given more time, more and wider range of hyperparameters could be tested on for the best model such as **lossType, maxBins, minInfoGain**.
+
+### Reflection
+**Summary of Solution**
+To summarize the whole analysis, I built a machine learning model using pyspark to predict the user churn based on their log activity. By aggregating the data down to user-level engineering different features, training different machine learning models, tunining hyperparameter and cross validation to pick the best models, I finally picked the GBT models (maxDepth=5, maxIter=10) (Accuracy: 0.7816, F1 Score: 0.7416). Feature Importances were reported in the end.
+
+I find the project especially interesting because it's my first time to use spark. And I realize how many data records of an indivdual could be. A user could have hundreds of log records and therefore distributed computing is necessary. However, after we aggregate the data to user level. The size of the user sample actually is not very big. Therefore, it rely on us to use more robust evaluation score (f1 score) to train the model.
+
